@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\User; // 追加
+use App\Micropost; // 追加
 
 class UsersController extends Controller
 {
@@ -82,6 +83,27 @@ class UsersController extends Controller
         return view('users.followers', [
             'user' => $user,
             'users' => $followers,
+        ]);
+    }
+    
+    /**
+     * ユーザのお気に入り投稿一覧ページを表示するアクション。
+     */
+    public function favorites($id)
+    {
+        // idの値でお気に入りした投稿を検索して取得
+        $user = User::findOrFail($id);
+
+        // 関係するモデルの件数をロード
+        $user->loadRelationshipCounts();
+
+        // そのユーザがお気に入りしている投稿一覧を取得
+        $favorites = $user->favorites()->paginate(10);
+
+        // フォロー一覧ビューでそれらを表示
+        return view('users.favorites', [
+            'user' => $user,
+            'microposts' => $favorites,
         ]);
     }
 }
